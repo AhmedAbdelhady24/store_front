@@ -21,22 +21,56 @@ These are the notes from a meeting with the frontend developer that describe wha
 - [OPTIONAL] Completed Orders by user (args: user id)[token required]
 
 ## Data Shapes
-#### Product
--  id
-- name
-- price
-- [OPTIONAL] category
 
-#### User
-- id
-- firstName
-- lastName
-- password
 
-#### Orders
-- id
-- id of each product in the order
-- quantity of each product in the order
-- user_id
-- status of order (active or complete)
+### users table ###
+     Column      |          Type          | Collation | Nullable |              Default              
+-----------------+------------------------+-----------+----------+-----------------------------------
+ id              | integer                |           | not null | nextval('users_id_seq'::regclass)
+ username        | character varying(100) |           |          | 
+ first_name      | character varying(100) |           |          | 
+ last_name       | character varying(100) |           |          | 
+ password_digest | character varying      |           |          | 
+Indexes:
+    "users_pkey" PRIMARY KEY, btree (id)
+Referenced by:
+    TABLE "orders" CONSTRAINT "orders_user_id_fkey" FOREIGN KEY (user_id) REFERENCES users(id)
+
+### products table ###
+ Column |          Type          | Collation | Nullable |               Default                
+--------+------------------------+-----------+----------+--------------------------------------
+ id     | integer                |           | not null | nextval('products_id_seq'::regclass)
+ name   | character varying(150) |           |          | 
+ price  | integer                |           |          | 
+Indexes:
+    "products_pkey" PRIMARY KEY, btree (id)
+Referenced by:
+    TABLE "order_products" CONSTRAINT "order_products_product_id_fkey" FOREIGN KEY (product_id) REFERENCES products(id)
+### orders table ###
+ Column  |         Type          | Collation | Nullable |              Default               
+---------+-----------------------+-----------+----------+------------------------------------
+ id      | integer               |           | not null | nextval('orders_id_seq'::regclass)
+ status  | character varying(15) |           |          | 
+ user_id | integer               |           |          | 
+Indexes:
+    "orders_pkey" PRIMARY KEY, btree (id)
+Foreign-key constraints:
+    "orders_user_id_fkey" FOREIGN KEY (user_id) REFERENCES users(id)
+Referenced by:
+    TABLE "order_products" CONSTRAINT "order_products_order_id_fkey" FOREIGN KEY (order_id) REFERENCES orders(id)
+
+
+### order_products table ###
+   Column   |  Type   | Collation | Nullable |                  Default                   
+------------+---------+-----------+----------+--------------------------------------------
+ id         | integer |           | not null | nextval('order_products_id_seq'::regclass)
+ quantity   | integer |           |          | 
+ order_id   | integer |           |          | 
+ product_id | integer |           |          | 
+Indexes:
+    "order_products_pkey" PRIMARY KEY, btree (id)
+Foreign-key constraints:
+    "order_products_order_id_fkey" FOREIGN KEY (order_id) REFERENCES orders(id)
+    "order_products_product_id_fkey" FOREIGN KEY (product_id) REFERENCES products(id)
+
 
